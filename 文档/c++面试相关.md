@@ -252,3 +252,72 @@ C++虚函数实现：
 类中如果有虚函数会维护一个虚表指针指向一个虚表，虚表中是各个虚函数的函数指针数组，指向该类各虚函数实际运行时指向的函数地址。虚表大小与虚函数数量相关，为虚函数数量×函数指针大小（4 or 8）。
 
 list容器：双链表、支持前向遍历和后向遍历。
+
+定时器实现：
+
+```cpp
+#pragma once
+#include <time.h>
+#include <memory>
+class Timer;
+class Data;
+using TimerPtr = std::shared_ptr<class Timer>;
+using DataPtr = std::shared_ptr<class Data>;
+using callback_func = void(*)(Data *);
+class Data
+{
+public:
+	TimerPtr timer;
+	char buff[256];
+};
+class Timer
+{
+public:
+	Timer();
+	~Timer();
+	time_t expire;
+	callback_func f;
+	DataPtr data;
+	//for timer_heap
+	bool operator >(const Timer t) const
+	{
+		return expire > t.expire;
+	}
+
+	void Reg(callback_func func, Data * data, time_t delay);
+
+	void Update();
+
+};
+
+//Timer.cpp
+#include "Timer.h"
+
+
+
+Timer::Timer()
+{
+}
+
+
+Timer::~Timer()
+{
+}
+
+void Timer::Reg(callback_func func, Data * data, time_t delay)
+{
+	this->f = func;
+	this->data = std::shared_ptr<Data>(data);
+	this->expire = time(nullptr) + delay;
+}
+void Timer::Update()
+{
+	while (time(nullptr) != expire)
+	{
+		//wait();
+	}
+	f(data.get());
+}
+
+```
+
